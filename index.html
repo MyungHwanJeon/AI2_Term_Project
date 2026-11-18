@@ -9,7 +9,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232BA8A1'/%3E%3Cpath d='M15 44V32h8v12zm13 0V20h8v24zm13 0V12h8v32z' fill='white'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
   <script defer src="config.js?v=20261113-render1"></script>
-  <script defer src="app.js"></script>
+  <script defer src="app.js?v=20261118-account"></script>
 </head>
 <body>
   <a class="skip-link" href="#leaderboard">리더보드로 바로 가기</a>
@@ -59,8 +59,8 @@
         <section class="card submit-card" aria-labelledby="submitTitle">
           <div class="card-heading"><div><h2 id="submitTitle">결과 제출</h2></div><span class="round-icon" aria-hidden="true">↥</span></div>
           <p class="card-description">COCO 형식의 예측 JSON 업로드</p>
-          <form id="submissionForm" novalidate>
-            <div class="field"><label for="studentId">학번 <span>필수</span></label><input id="studentId" name="student_id" type="text" inputmode="numeric" pattern="[0-9]{6,12}" minlength="6" maxlength="12" autocomplete="username" placeholder="학번 입력" required aria-describedby="studentIdHint"><p class="field-hint" id="studentIdHint">숫자 6–12자리 · 리더보드에 공개</p></div>
+          <form id="submissionForm" autocomplete="off" novalidate>
+            <div class="field"><label for="studentId">학번 <span>필수</span></label><input id="studentId" name="student_id" type="text" inputmode="numeric" pattern="[0-9]{6,12}" minlength="6" maxlength="12" autocomplete="off" required aria-describedby="studentIdHint"><p class="field-hint" id="studentIdHint">숫자 6–12자리 · 리더보드에 공개</p></div>
             <div class="field"><label for="studentPassword">비밀번호 <span>필수</span></label><input id="studentPassword" name="password" type="password" minlength="8" maxlength="128" autocomplete="current-password" placeholder="비밀번호 입력" required aria-describedby="passwordHint passwordRecoveryHint"><p class="field-hint" id="passwordHint">8–128자 · 최초 제출 시 등록, 이후 동일한 비밀번호 사용</p><p class="field-hint" id="passwordRecoveryHint">비밀번호 분실 시 학번과 성명을 기재하여 담당 교수자에게 이메일로 초기화를 요청하시기 바랍니다. (mhjeon@kumoh.ac.kr)</p></div>
             <div class="field file-field"><label for="predictionFile">json 파일 <span>.json</span></label><div class="drop-zone" id="dropZone"><input class="file-input" type="file" id="predictionFile" name="file" accept=".json,application/json" aria-describedby="fileHint"><label for="predictionFile" class="drop-content"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M20 4H8a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V10zM20 4v7h6M16 23V14m-4 4 4-4 4 4"/></svg><strong id="fileName">파일을 선택하거나 끌어다 놓기</strong><span id="fileHint">JSON · 최대 50 MiB</span></label></div><button class="text-button clear-file" id="clearFile" type="button" hidden>선택한 파일 지우기</button></div>
             <div class="upload-status" id="uploadStatus" role="status" aria-live="polite" hidden><span class="spinner" aria-hidden="true"></span><span id="uploadStatusText">파일 확인 중</span></div>
@@ -74,7 +74,7 @@
       </aside>
     </div>
 
-    <section class="guide card" aria-labelledby="guideTitle"><div class="guide-intro"><span class="guide-number" aria-hidden="true">i</span><div><h2 id="guideTitle">제출 전 확인사항</h2><p>원본 이미지 좌표와 데이터셋의 category ID를 유지하여 제출해 주시기 바랍니다.</p></div></div><div class="guide-details"><div class="guide-section-title">JSON 형식과 채점 기준</div><div class="guide-body"><div><h3>예측 결과 형식</h3><p>JSON의 최상위 구조는 객체 목록입니다. 각 객체에는 <code>image_id</code>, <code>category_id</code>, <code>bbox</code>, <code>score</code>, <code>segmentation</code>을 포함해야 합니다.</p><ul><li><code>bbox</code>: 원본 이미지 기준 <code>[x, y, width, height]</code></li><li><code>score</code>: 0–1 범위의 유한한 신뢰도 값</li><li><code>segmentation</code>: <code>size: [height, width]</code>와 압축 RLE 문자열 <code>counts</code></li><li>category ID는 데이터셋의 원래 값을 사용해야 합니다. <code>0</code>도 유효한 클래스 ID입니다.</li></ul></div><div><h3>공정한 비교를 위한 기준</h3><ul><li>bbox와 mask를 각각 COCO AP@[.50:.95]로 평가합니다.</li><li>두 AP의 산술평균을 최종 점수로 사용합니다.</li><li>전체 테스트 이미지와 모든 카테고리를 대상으로 평가하며, area=all, maxDets=100을 적용합니다.</li><li>학생별 최고 최종 점수 한 건만 리더보드에 반영합니다. 동점은 공동 순위로 표시하며, 이전 제출 기록은 보관합니다.</li><li>동일한 파일을 다시 제출해도 제출 횟수에 포함됩니다. 동일 파일의 채점 결과는 재사용될 수 있습니다.</li></ul></div></div></div></section>
+    <section class="guide card" aria-labelledby="guideTitle"><div class="guide-intro"><span class="guide-number" aria-hidden="true">i</span><div><h2 id="guideTitle">제출 전 확인사항</h2><p>원본 이미지 좌표와 데이터셋의 category ID를 유지하여 제출해 주시기 바랍니다.</p></div></div><div class="guide-details"><div class="guide-section-title">JSON 형식과 채점 기준</div><div class="guide-body"><div><h3>예측 결과 형식</h3><p>JSON의 최상위 구조는 객체 목록입니다. 각 객체에는 <code>image_id</code>, <code>category_id</code>, <code>bbox</code>, <code>score</code>, <code>segmentation</code>을 포함해야 합니다.</p><ul><li><code>bbox</code>: 원본 이미지 기준 <code>[x, y, width, height]</code></li><li><code>score</code>: 0–1 범위의 유한한 신뢰도 값</li><li><code>segmentation</code>: <code>size: [height, width]</code>와 압축 RLE 문자열 <code>counts</code></li><li>객체의 <code>category_id</code>는 <code>1</code>~<code>13</code>입니다. <code>0</code>은 배경이므로 제출에서 제외합니다.</li></ul></div><div><h3>공정한 비교를 위한 기준</h3><ul><li>bbox와 mask를 각각 COCO AP@[.50:.95]로 평가합니다.</li><li>두 AP의 산술평균을 최종 점수로 사용합니다.</li><li>전체 테스트 이미지와 모든 카테고리를 대상으로 평가하며, area=all, maxDets=100을 적용합니다.</li><li>학생별 최고 최종 점수 한 건만 리더보드에 반영합니다. 동점은 공동 순위로 표시하며, 이전 제출 기록은 보관합니다.</li><li>동일한 파일을 다시 제출해도 제출 횟수에 포함됩니다. 동일 파일의 채점 결과는 재사용될 수 있습니다.</li></ul></div></div></div></section>
 
   </main>
   <noscript><div class="noscript-message">리더보드 조회와 제출에는 JavaScript가 필요합니다. 브라우저 설정에서 JavaScript를 활성화해 주세요.</div></noscript>

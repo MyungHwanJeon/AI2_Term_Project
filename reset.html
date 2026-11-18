@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>비밀번호 재설정 · AI2 Term Project</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="config.js?v=20261113-render1"></script>
+  <script defer src="app.js?v=20261118-account"></script>
+</head>
+<body>
+  <main class="page-shell">
+    <section class="card submit-card password-reset-card" aria-labelledby="resetTitle">
+      <div class="card-heading"><h1 id="resetTitle">비밀번호 재설정</h1></div>
+      <form id="resetForm" method="post" autocomplete="off">
+        <div class="field"><label for="resetStudent">학번</label><input id="resetStudent" type="text" inputmode="numeric" pattern="[0-9]{6,12}" maxlength="12" required></div>
+        <div class="field"><label for="newPassword">새 비밀번호</label><input id="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required aria-describedby="lengthHint"><p class="field-hint" id="lengthHint">8–128자</p></div>
+        <div class="field"><label for="confirmPassword">새 비밀번호 확인</label><input id="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required></div>
+        <button id="resetButton" type="submit" class="primary-button" disabled>비밀번호 저장</button>
+      </form>
+      <p id="resetMessage" class="inline-message" role="status" hidden></p>
+      <a href="./">리더보드로 돌아가기</a>
+    </section>
+  </main>
+</body>
+</html>

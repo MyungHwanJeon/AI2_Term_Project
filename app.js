@@ -48,6 +48,55 @@
   if (typeof document === "undefined") return;
 
   const byId = id => document.getElementById(id);
+  if (byId("resetForm")) {
+    setupPasswordReset();
+    return;
+  }
+
+  function setupPasswordReset() {
+    const form = byId("resetForm");
+    const message = byId("resetMessage");
+    const button = byId("resetButton");
+    let token = location.hash.slice(1);
+    history.replaceState(null, "", location.pathname + location.search);
+    if (!/^[A-Za-z0-9_-]{43}$/.test(token)) {
+      form.hidden = true;
+      showMessage(message, "교수자가 이메일로 보낸 재설정 링크를 다시 열어 주세요.", true);
+      return;
+    }
+    button.disabled = false;
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (button.disabled) return;
+      const password = byId("newPassword").value;
+      if (password !== byId("confirmPassword").value) {
+        showMessage(message, "새 비밀번호와 확인 입력이 일치하지 않습니다.", true);
+        return;
+      }
+      button.disabled = true;
+      try {
+        const base = safeApiBase(window.LEADERBOARD_CONFIG?.apiBase, location.origin);
+        const response = await fetch(base + "/api/password-reset/complete", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ student_id: byId("resetStudent").value.trim(), token, password }),
+          credentials: "omit", cache: "no-store", redirect: "error", referrerPolicy: "no-referrer"
+        });
+        if (!response.ok) {
+          showMessage(message, response.status === 400 ? "학번과 재설정 링크를 확인해 주세요. 만료된 경우 재발급을 요청해 주세요." : "서버 연결을 확인한 후 다시 시도해 주세요.", true);
+          return;
+        }
+        if ((await response.json()).ok !== true) throw new Error();
+        token = "";
+        form.reset();
+        form.hidden = true;
+        showMessage(message, "비밀번호를 변경했습니다. 새 비밀번호로 제출하거나 기존 기록을 조회할 수 있습니다.");
+      } catch (_) {
+        showMessage(message, "서버 응답을 확인할 수 없습니다. 리더보드에서 새 비밀번호로 기록을 조회해 주세요.", true);
+      } finally {
+        button.disabled = !token;
+      }
+    });
+  }
   const ui = Object.fromEntries([
     "connectionDot", "connectionText", "studentCount", "submissionCount", "bestScore", "queueCount", "queueLabel",
     "leaderboardRows", "leaderboardEmpty", "emptyTitle", "emptyText", "leaderboardError", "updatedAt", "refreshButton",
@@ -75,10 +124,6 @@
     element.textContent = message;
     element.classList.toggle("error", isError);
     element.hidden = !message;
-  }
-
-  function storeStudentId(value) {
-    try { localStorage.setItem(state.storagePrefix + "student", value); } catch (_) { /* Storage is optional. */ }
   }
 
   function pendingKey(studentId) { return `${state.storagePrefix}${state.apiBase || location.origin}:pending:${studentId}`; }
@@ -226,7 +271,6 @@
       ui.studentPassword.focus();
       throw Object.assign(new Error("Invalid password"), { userMessage: "비밀번호는 8–128자로 입력하시기 바랍니다." });
     }
-    storeStudentId(studentId);
     return { studentId, password };
   }
 
@@ -494,13 +538,18 @@
     for (const controller of state.controllers) controller.abort();
   });
   window.addEventListener("pageshow", event => {
-    if (event.persisted) { state.disposed = false; void refreshPublic(); schedule(); }
+    ui.studentId.value = "";
+    ui.studentPassword.value = "";
+    if (event.persisted) {
+      resetIdentity();
+      state.disposed = false;
+      void refreshPublic();
+      schedule();
+    }
   });
 
   try {
     state.apiBase = safeApiBase(window.LEADERBOARD_CONFIG?.apiBase, location.origin);
-    const remembered = localStorage.getItem(state.storagePrefix + "student");
-    if (validStudentId(remembered)) ui.studentId.value = remembered;
   } catch (error) {
     if (error instanceof TypeError || /서버|연결/.test(error.message)) {
       state.configError = error;

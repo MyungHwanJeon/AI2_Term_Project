@@ -14,3 +14,5 @@
 .score-explainer{min-height:0;padding:20px 24px;align-self:center}.score-explainer>p{margin:0 0 12px;line-height:1.35}.score-explainer .formula{margin-top:0}
 
 .guide .guide-section-title{cursor:default}
+
+.password-reset-card { max-width: 32rem; margin: 2rem auto; }
